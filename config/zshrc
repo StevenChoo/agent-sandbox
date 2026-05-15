@@ -1,0 +1,62 @@
+# ── oh-my-zsh ─────────────────────────────────────────────────────────────────
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="lukerandall"
+
+# Tell the fzf plugin exactly where fzf lives — prevents it from falling back
+# to the debian auto-detection path which doesn't exist on this Ubuntu setup
+export FZF_BASE="$HOME/.fzf"
+
+CASE_SENSITIVE="true"
+zstyle ':omz:update' mode disabled  # image rebuild manages versions
+
+# Add pre-generated completions to fpath before oh-my-zsh runs compinit
+[[ -d "$HOME/.zsh/completions" ]] && fpath=("$HOME/.zsh/completions" $fpath)
+
+# Plugins available in the container: aws, fzf, git, gradle, maven, npm, nvm, sdkman, ubuntu
+plugins=(aws fzf git git-prompt gradle mvn npm nvm sdk ubuntu)
+
+source $ZSH/oh-my-zsh.sh
+
+# ── Terminal ──────────────────────────────────────────────────────────────────
+export TERM=xterm-256color
+export EDITOR=nano
+export VISUAL=nano
+
+# ── Umask: group-writable so host user (agent group) can edit agent-created files
+umask 002
+
+# ── SDKMAN ────────────────────────────────────────────────────────────────────
+export SDKMAN_DIR="/home/agent/.sdkman"
+[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+
+# ── NVM ───────────────────────────────────────────────────────────────────────
+export NVM_DIR="/home/agent/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+
+# ── Go ────────────────────────────────────────────────────────────────────────
+export GOPATH="/home/agent/go"
+export PATH="/usr/local/go/bin:$GOPATH/bin:$PATH"
+
+# ── uv ────────────────────────────────────────────────────────────────────────
+export PATH="/home/agent/.local/bin:$PATH"
+
+# ── History ───────────────────────────────────────────────────────────────────
+export HISTFILE=~/.zsh_history
+export HISTFILESIZE=1000000000
+export HISTSIZE=1000000000
+setopt EXTENDED_HISTORY
+setopt HIST_FIND_NO_DUPS
+setopt INC_APPEND_HISTORY
+
+# ── Aliases ───────────────────────────────────────────────────────────────────
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# ── Landing directory ─────────────────────────────────────────────────────────
+# cd to WORK_DIR if set and the directory exists (bind mounts are live by now)
+[[ -n "${WORK_DIR}" && -d "${WORK_DIR}" ]] && cd "${WORK_DIR}"
+
+# ── Byobu reminder ────────────────────────────────────────────────────────────
+[[ -z "$TMUX" ]] && echo "  run 'byobu' for multi-window sessions"

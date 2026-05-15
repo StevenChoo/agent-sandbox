@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Environment — never bake secrets into the image
+.env
+
+# Override file — machine-specific, not part of the image
+docker-compose.override.yml
+
+# Docs (not needed in image)
+docs/
+*.md
+
+# Scripts (run on host, not in image)
+scripts/
+
+# Editor / OS artifacts
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo

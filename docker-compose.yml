@@ -1,0 +1,96 @@
+name: agent-sandbox
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Match these to your host user to avoid permission mismatches on mounted dirs.
+        # Run: id -u && id -g to get your values.
+        AGENT_UID: ${AGENT_UID:-1000}
+        AGENT_GID: ${AGENT_GID:-1000}
+
+    image: agent-sandbox:latest
+    container_name: agent-sandbox
+
+    # Keep container running without starting an interactive shell.
+    # Using sleep infinity avoids sourcing .zshrc on startup, which would
+    # trigger byobu before any user is attached.
+    command: sleep infinity
+
+    # Podman-specific: map host UID straight through into the container so
+    # bind-mounted files owned by the host user appear as agent:agent, not root:root
+    userns_mode: keep-id
+
+    environment:
+      # Context7 MCP API key — set in .env
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+      # MCP host reachability
+      - MCP_HOST=host.containers.internal
+      # SDKMAN + NVM init in non-interactive shells
+      - SDKMAN_DIR=/home/agent/.sdkman
+      - NVM_DIR=/home/agent/.nvm
+      # Shell landing directory — must be a mounted path, set in .env
+      - WORK_DIR=${WORK_DIR:-/home/agent/work}
+      # Sandbox marker — read by Claude Code via CLAUDE.md to enable yolo behavior.
+      # This variable is intentionally absent on the host.
+      - AGENT_SANDBOX=1
+
+    volumes:
+      # ── AI agent config from host user ───────────────────────────────────────
+      # Read-write: Claude and Gemini need to write credential refreshes back to disk
+      - type: bind
+        source: ${HOST_HOME}/.claude.json
+        target: /home/agent/.claude.json
+
+      - type: bind
+        source: ${HOST_HOME}/.claude
+        target: /home/agent/.claude
+
+      - type: bind
+        source: ${HOST_HOME}/.gemini
+        target: /home/agent/.gemini
+
+      # ── Read-write: per-tool caches (avoid re-downloading on restart) ───────
+      - type: volume
+        source: agent-npm-cache
+        target: /home/agent/.npm
+
+      - type: volume
+        source: agent-gradle-cache
+        target: /home/agent/.gradle
+
+      - type: volume
+        source: agent-maven-cache
+        target: /home/agent/.m2
+
+      - type: volume
+        source: agent-uv-cache
+        target: /home/agent/.cache/uv
+
+      - type: volume
+        source: agent-go-cache
+        target: /home/agent/go
+
+    # MCP servers on host are reachable via host.containers.internal
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+
+    # No privileged — explicit capabilities only if a tool demands it
+    security_opt:
+      - no-new-privileges:true
+
+    # Expose ports for projects started by the agent.
+    # Add as needed — agent-started services bind to container-internal ports.
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+      - "8443:8443"
+
+volumes:
+  agent-npm-cache:
+  agent-gradle-cache:
+  agent-maven-cache:
+  agent-uv-cache:
+  agent-go-cache:

@@ -1,0 +1,11 @@
+# Copy to docker-compose.override.yml and adjust paths.
+# This file is git-ignored — safe to put machine-specific paths here.
+# launch.sh loads both docker-compose.yml and this file with explicit -f flags.
+
+services:
+  agent:
+    volumes:
+      - type: bind
+        source: ${HOST_HOME}/Documents/my-project   # path on the host
+        target: /home/agent/Documents/my-project    # path inside the container
+        read_only: true

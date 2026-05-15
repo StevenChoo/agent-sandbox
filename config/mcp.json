@@ -1,0 +1,60 @@
+{
+  "mcpServers": {
+    "awslabs.aws-documentation-mcp-server": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "awslabs.aws-documentation-mcp-server==1.1.24"
+      ],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_DOCUMENTATION_PARTITION": "aws"
+      }
+    },
+    "ddg-search": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "duckduckgo-mcp-server==0.4.0"
+      ]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@2.2.5"
+      ],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory@2026.1.26"
+      ]
+    },
+    "git": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-server-git==2026.1.14"
+      ]
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@2025.12.18"
+      ]
+    },
+    "runpod-docs": {
+      "type": "http",
+      "url": "https://docs.runpod.io/mcp"
+    }
+  }
+}

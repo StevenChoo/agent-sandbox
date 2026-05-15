@@ -1,0 +1,18 @@
+# Secrets
+.env
+
+# Container build artifacts
+.container-id
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+docker-compose.override.yml
