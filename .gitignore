@@ -16,3 +16,7 @@ Thumbs.db
 
 # Project specific
 docker-compose.override.yml
+
+# CLAUDE.md is globally gitignored on this machine but is a tracked project
+# instruction file — override the global rule so it gets committed.
+!CLAUDE.md

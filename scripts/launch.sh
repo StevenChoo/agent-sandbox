@@ -56,9 +56,12 @@ fi
 
 # ── Validate HOST_HOME is not a placeholder ───────────────────────────────────
 HOST_HOME_VALUE=$(grep -E '^HOST_HOME=' "${ENV_FILE}" | cut -d= -f2-)
-if [[ -z "${HOST_HOME_VALUE}" || "${HOST_HOME_VALUE}" == "/home/johndoe" ]]; then
+if [[ -z "${HOST_HOME_VALUE}" || \
+      "${HOST_HOME_VALUE}" == "/home/johndoe" || \
+      "${HOST_HOME_VALUE}" == "/Users/johndoe" ]]; then
   echo "ERROR: HOST_HOME in .env is not set or is still the placeholder value." >&2
-  echo "  Set it to your actual home directory (e.g. HOST_HOME=/home/$(whoami))" >&2
+  echo "  Linux: HOST_HOME=/home/$(whoami)" >&2
+  echo "  macOS: HOST_HOME=/Users/$(whoami)" >&2
   exit 1
 fi
 

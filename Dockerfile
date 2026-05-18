@@ -24,13 +24,22 @@ ENV LC_ALL=en_US.UTF-8
 ENV LC_CTYPE=en_US.UTF-8
 
 # ── Go ────────────────────────────────────────────────────────────────────────
+# uname -m returns x86_64 or aarch64; Go download URLs use amd64 or arm64.
 ARG GO_VERSION=1.26.3
-RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" \
+RUN ARCH=$(uname -m) && \
+    case "${ARCH}" in \
+      x86_64)  GO_ARCH="amd64" ;; \
+      aarch64) GO_ARCH="arm64" ;; \
+      *)       echo "Unsupported arch: ${ARCH}" && exit 1 ;; \
+    esac && \
+    curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" \
     | tar -C /usr/local -xz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # ── AWS CLI v2 ────────────────────────────────────────────────────────────────
-RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip \
+# AWS CLI download URLs use x86_64 or aarch64, matching uname -m directly.
+RUN ARCH=$(uname -m) && \
+    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o /tmp/awscliv2.zip \
     && unzip -q /tmp/awscliv2.zip -d /tmp \
     && /tmp/aws/install \
     && rm -rf /tmp/awscliv2.zip /tmp/aws
